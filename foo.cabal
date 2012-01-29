@@ -1,0 +1,41 @@
+
+name:                                   ?
+version:                                ?
+synopsis:                               ?
+category:                               ?
+description:
+
+  ?
+
+author:                                 Heka Treep
+maintainer:                             Heka Treep <zena.treep@gmail.com>
+homepage:                               https://github.com/treep/?
+bug-reports:                            https://github.com/treep/?/issues
+license:                                MIT
+license-file:                           LICENSE
+
+stability:                              Experimental
+cabal-version:                          >= 1.6
+build-type:                             Simple
+
+data-files:                             README.md
+                                        Makefile
+
+extra-source-files:                     ?
+
+source-repository                       head
+  type:                                 git
+  location:                             git://github.com/treep/?.git
+
+library
+  hs-source-dirs:                       ?
+  ghc-options:                          -Wall -fno-warn-orphans
+  extensions:                           ?
+  build-depends:                        base == 4.*
+  exposed-modules:                      ?
+
+executable ?
+  ghc-options:                          -Wall -fno-warn-orphans
+  extensions:                           ?
+  hs-source-dirs:                       ?
+  main-is:                              ?
