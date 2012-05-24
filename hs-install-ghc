@@ -1,0 +1,133 @@
+#!/bin/sh
+
+set -e
+
+echo
+echo "-- configuring --"
+echo
+
+printf "%-25s: " "checking distro"
+
+dist="$(lsb_release -si)"
+
+case "${dist}" in
+    "Fedora" | "Gentoo" | "Debian" | "Ubuntu") echo "${dist}";;
+    *) echo "unknown distro ${dist}"; exit 1
+esac
+
+printf "%-25s: " "checking architecture"
+
+arch="$(uname -m)"
+
+case "${arch}" in
+    "x86" | "x86_64") echo "${arch}";;
+    *) echo "unknown architecture ${arch}"; exit 1
+esac
+
+printf "%-25s: " "checking shell"
+
+shell="${SHELL}"
+
+case "${shell}" in
+    "/bin/bash" | "/bin/zsh") echo "${shell}";;
+    *) echo "unknown shell ${shell}"; exit 1
+esac
+
+if [ "${2}" != "" ] ; then
+    tmp_dir="${2}"
+else
+    tmp_dir="/tmp"
+fi
+
+printf "%-25s"  "cd'ing to ${tmp_dir}"
+
+cd "${tmp_dir}"
+
+echo "ok"
+
+case "${1}" in
+    "." | "") ghc_ver="7.4.1";; # get the latest GHC version?
+    *) ghc_ver="${1}"
+esac
+
+ghc_bin_dir="ghc-${ghc_ver}"
+
+echo
+echo "-- attemt to install GHC binary version ${ghc_ver} --"
+echo
+
+case "${arch}" in
+    "x86")
+        ghc_bin_url="http://www.haskell.org/ghc/dist/${ghc_ver}/ghc-${ghc_ver}-i386-unknown-linux.tar.bz2"
+        ghc_bin_ar="ghc-${ghc_ver}-i386-unknown-linux.tar.bz2"
+        ;;
+    "x86_64")
+        ghc_bin_url="http://www.haskell.org/ghc/dist/${ghc_ver}/ghc-${ghc_ver}-x86_64-unknown-linux.tar.bz2"
+        ghc_bin_ar="ghc-${ghc_ver}-x86_64-unknown-linux.tar.bz2"
+esac
+
+printf "%-25s" "downloading GHC binary"
+
+if [ "${hs_debug}" != "" ] ; then
+    wget -c "${ghc_bin_url}"
+else
+    wget -cq "${ghc_bin_url}"
+fi
+
+echo "ok"
+
+printf "%-25s" "extracting archive"
+
+if [ "${hs_debug}" != "" ] ; then
+    tar xjfv "${ghc_bin_ar}"
+else
+    tar xjf "${ghc_bin_ar}"
+fi
+
+echo "ok"
+
+printf "%-25s" "cd'ing to ${ghc_bin_dir}"
+
+cd "${ghc_bin_dir}"
+
+echo "ok"
+
+printf "%-25s" "create /opt/ghc-${ghc_ver}"
+
+sudo mkdir -p "/opt/ghc-${ghc_ver}"
+
+echo "ok"
+
+printf "%-25s" "configuring GHC binary"
+
+if [ "${hs_debug}" != "" ] ; then
+    ./configure --prefix="/opt/ghc-${ghc_ver}"
+else
+    ./configure --prefix="/opt/ghc-${ghc_ver}" > /dev/null
+fi
+
+echo "ok"
+
+printf "%-25s" "installing GHC binary"
+
+if [ "${hs_debug}" != "" ] ; then
+    sudo make install
+else
+    sudo make install > /dev/null
+fi
+
+echo "ok"
+
+printf "%-25s" "updating PATH"
+
+export PATH="${PATH}:/opt/ghc-${ghc_ver}/bin"
+
+case "${shell}" in
+    "/bin/bash")
+        echo "export PATH=\"\${PATH}:/opt/ghc-${ghc_ver}/bin\"" >> "${HOME}/.bashrc"
+        ;;
+    "/bin/zsh")
+        echo "export PATH=\"\${PATH}:/opt/ghc-${ghc_ver}/bin\"" >> "${HOME}/.zshrc"
+esac
+
+echo "ok"
