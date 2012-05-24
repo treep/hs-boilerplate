@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+echo
+echo "You have the following GHCs installed:"
+echo
+
+ls -d /opt/ghc*
+
+echo
+echo "just delete appropriate directory if you want to (I don't want to rm-rf'ing here)."
+echo
